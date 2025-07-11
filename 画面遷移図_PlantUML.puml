@@ -1,0 +1,221 @@
+@startuml ABAPFlightScreenFlow
+!theme aws-orange
+!define SPRITE_URL https://raw.githubusercontent.com/tupadr3/plantuml-icon-font-sprites/master
+!includeurl SPRITE_URL/common.puml
+!includeurl SPRITE_URL/font-awesome-5/plane.puml
+!includeurl SPRITE_URL/font-awesome-5/user.puml
+!includeurl SPRITE_URL/font-awesome-5/building.puml
+!includeurl SPRITE_URL/font-awesome-5/calendar.puml
+!includeurl SPRITE_URL/font-awesome-5/money_bill.puml
+!includeurl SPRITE_URL/font-awesome-5/list.puml
+!includeurl SPRITE_URL/font-awesome-5/edit.puml
+!includeurl SPRITE_URL/font-awesome-5/check.puml
+!includeurl SPRITE_URL/font-awesome-5/times.puml
+
+title ABAP Flight Management System - 画面遷移図
+
+skinparam backgroundColor #FFFFFF
+skinparam roundcorner 10
+skinparam shadowing false
+
+skinparam rectangle {
+    BackgroundColor #E8F4FD
+    BorderColor #2196F3
+    BorderThickness 2
+}
+
+skinparam state {
+    BackgroundColor #FFF3E0
+    BorderColor #FF9800
+    BorderThickness 2
+}
+
+skinparam note {
+    BackgroundColor #F1F8E9
+    BorderColor #4CAF50
+}
+
+' メインメニュー
+rectangle "メインメニュー\n<$building>" as MainMenu {
+    state "旅行管理システム" as TravelSystem
+    state "代理店管理" as AgencyMgmt
+    state "航空会社管理" as CarrierMgmt
+    state "追加サービス管理" as SupplementMgmt
+}
+
+' 旅行管理セクション
+package "旅行管理 <$plane>" as TravelMgmtPackage {
+    ' Draft シナリオ
+    rectangle "Draft シナリオ\n(ドラフト機能付き)" as DraftScenario #lightblue {
+        state "旅行一覧\n<$list>" as TravelListDraft
+        state "旅行詳細\n<$edit>" as TravelDetailDraft
+        state "予約詳細\n<$calendar>" as BookingDetailDraft
+        state "追加サービス\n<$money_bill>" as SupplementDetailDraft
+    }
+    
+    ' Managed シナリオ
+    rectangle "Managed シナリオ\n(管理されたBO)" as ManagedScenario #lightgreen {
+        state "旅行処理一覧\n<$list>" as TravelListManaged
+        state "旅行処理詳細\n<$edit>" as TravelDetailManaged
+        state "予約処理詳細\n<$calendar>" as BookingDetailManaged
+        state "追加サービス処理\n<$money_bill>" as SupplementDetailManaged
+    }
+    
+    ' Unmanaged シナリオ
+    rectangle "Unmanaged シナリオ\n(非管理BO)" as UnmanagedScenario #lightyellow {
+        state "旅行管理一覧\n<$list>" as TravelListUnmanaged
+        state "旅行管理詳細\n<$edit>" as TravelDetailUnmanaged
+        state "予約管理詳細\n<$calendar>" as BookingDetailUnmanaged
+        state "追加サービス管理\n<$money_bill>" as SupplementDetailUnmanaged
+    }
+}
+
+' 管理画面セクション
+package "マスターデータ管理" as MasterDataPackage {
+    rectangle "代理店管理 <$building>" as AgencyMgmtDetail #lightcoral {
+        state "代理店一覧\n<$list>" as AgencyList
+        state "代理店詳細\n<$edit>" as AgencyDetail
+        state "代理店レビュー\n<$user>" as AgencyReview
+    }
+    
+    rectangle "航空会社管理 <$plane>" as CarrierMgmtDetail #lightsteelblue {
+        state "航空会社一覧\n<$list>" as CarrierList
+        state "航空会社詳細\n<$edit>" as CarrierDetail
+    }
+    
+    rectangle "追加サービス管理 <$money_bill>" as SupplementMgmtDetail #lightpink {
+        state "サービス一覧\n<$list>" as SupplementList
+        state "サービス詳細\n<$edit>" as SupplementDetail
+    }
+}
+
+' アクション
+rectangle "ビジネスアクション" as BusinessActions #lavender {
+    state "承認 <$check>" as AcceptAction
+    state "却下 <$times>" as RejectAction
+    state "割引適用 <$money_bill>" as DiscountAction
+    state "コピー <$edit>" as CopyAction
+    state "予約済み設定 <$check>" as BookedAction
+}
+
+' バリューヘルプ
+rectangle "バリューヘルプ" as ValueHelp #mistyrose {
+    state "顧客選択 <$user>" as CustomerVH
+    state "代理店選択 <$building>" as AgencyVH
+    state "航空会社選択 <$plane>" as CarrierVH
+    state "フライト選択 <$calendar>" as FlightVH
+    state "空港選択 <$building>" as AirportVH
+    state "通貨選択 <$money_bill>" as CurrencyVH
+}
+
+' メイン遷移
+MainMenu --> TravelSystem
+MainMenu --> AgencyMgmt
+MainMenu --> CarrierMgmt
+MainMenu --> SupplementMgmt
+
+TravelSystem --> TravelListDraft
+TravelSystem --> TravelListManaged
+TravelSystem --> TravelListUnmanaged
+
+AgencyMgmt --> AgencyList
+CarrierMgmt --> CarrierList
+SupplementMgmt --> SupplementList
+
+' Draft シナリオ遷移
+TravelListDraft --> TravelDetailDraft : 選択
+TravelDetailDraft --> BookingDetailDraft : 予約選択
+BookingDetailDraft --> SupplementDetailDraft : 追加サービス選択
+
+' Managed シナリオ遷移
+TravelListManaged --> TravelDetailManaged : 選択
+TravelDetailManaged --> BookingDetailManaged : 予約選択
+BookingDetailManaged --> SupplementDetailManaged : 追加サービス選択
+
+' Unmanaged シナリオ遷移
+TravelListUnmanaged --> TravelDetailUnmanaged : 選択
+TravelDetailUnmanaged --> BookingDetailUnmanaged : 予約選択
+BookingDetailUnmanaged --> SupplementDetailUnmanaged : 追加サービス選択
+
+' 管理画面遷移
+AgencyList --> AgencyDetail : 選択
+AgencyDetail --> AgencyReview : レビュー
+CarrierList --> CarrierDetail : 選択
+SupplementList --> SupplementDetail : 選択
+
+' アクション遷移
+TravelDetailDraft --> AcceptAction : 承認
+TravelDetailDraft --> RejectAction : 却下
+TravelDetailDraft --> DiscountAction : 割引適用
+TravelDetailManaged --> CopyAction : コピー
+TravelDetailUnmanaged --> BookedAction : 予約済み設定
+
+' バリューヘルプ遷移
+TravelDetailDraft -.-> CustomerVH : 顧客選択
+TravelDetailDraft -.-> AgencyVH : 代理店選択
+TravelDetailManaged -.-> CustomerVH : 顧客選択
+TravelDetailManaged -.-> AgencyVH : 代理店選択
+TravelDetailUnmanaged -.-> CustomerVH : 顧客選択
+TravelDetailUnmanaged -.-> AgencyVH : 代理店選択
+
+BookingDetailDraft -.-> CarrierVH : 航空会社選択
+BookingDetailDraft -.-> FlightVH : フライト選択
+BookingDetailDraft -.-> AirportVH : 空港選択
+BookingDetailManaged -.-> CarrierVH : 航空会社選択
+BookingDetailManaged -.-> FlightVH : フライト選択
+BookingDetailUnmanaged -.-> CarrierVH : 航空会社選択
+BookingDetailUnmanaged -.-> FlightVH : フライト選択
+
+SupplementDetailDraft -.-> CurrencyVH : 通貨選択
+SupplementDetailManaged -.-> CurrencyVH : 通貨選択
+SupplementDetailUnmanaged -.-> CurrencyVH : 通貨選択
+
+' 戻る遷移
+TravelDetailDraft --> TravelListDraft : 戻る
+BookingDetailDraft --> TravelDetailDraft : 戻る
+SupplementDetailDraft --> BookingDetailDraft : 戻る
+
+TravelDetailManaged --> TravelListManaged : 戻る
+BookingDetailManaged --> TravelDetailManaged : 戻る
+SupplementDetailManaged --> BookingDetailManaged : 戻る
+
+TravelDetailUnmanaged --> TravelListUnmanaged : 戻る
+BookingDetailUnmanaged --> TravelDetailUnmanaged : 戻る
+SupplementDetailUnmanaged --> BookingDetailUnmanaged : 戻る
+
+AgencyDetail --> AgencyList : 戻る
+AgencyReview --> AgencyDetail : 戻る
+CarrierDetail --> CarrierList : 戻る
+SupplementDetail --> SupplementList : 戻る
+
+' 注釈
+note right of DraftScenario
+  **Draft機能**
+  - 一時保存
+  - 編集中断・再開
+  - 変更履歴
+end note
+
+note right of ManagedScenario
+  **Managed BO**
+  - 自動番号付与
+  - 内部整合性チェック
+  - トランザクション管理
+end note
+
+note right of UnmanagedScenario
+  **Unmanaged BO**
+  - 外部API連携
+  - 手動トランザクション
+  - カスタムロジック
+end note
+
+note bottom of ValueHelp
+  **バリューヘルプ**
+  - 検索機能
+  - フィルタ機能
+  - 複数選択
+  - 入力検証
+end note
+
+@enduml

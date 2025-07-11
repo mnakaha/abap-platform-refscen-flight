@@ -1,0 +1,215 @@
+@startuml ABAPFlightUserJourney
+!theme aws-orange
+!define SPRITE_URL https://raw.githubusercontent.com/tupadr3/plantuml-icon-font-sprites/master
+!includeurl SPRITE_URL/common.puml
+!includeurl SPRITE_URL/font-awesome-5/user.puml
+!includeurl SPRITE_URL/font-awesome-5/user_tie.puml
+!includeurl SPRITE_URL/font-awesome-5/user_cog.puml
+!includeurl SPRITE_URL/font-awesome-5/plane.puml
+!includeurl SPRITE_URL/font-awesome-5/building.puml
+!includeurl SPRITE_URL/font-awesome-5/calendar.puml
+!includeurl SPRITE_URL/font-awesome-5/money_bill.puml
+!includeurl SPRITE_URL/font-awesome-5/check.puml
+!includeurl SPRITE_URL/font-awesome-5/times.puml
+!includeurl SPRITE_URL/font-awesome-5/smile.puml
+!includeurl SPRITE_URL/font-awesome-5/frown.puml
+!includeurl SPRITE_URL/font-awesome-5/meh.puml
+
+title ABAP Flight Management System - ユーザージャーニーマップ
+
+skinparam backgroundColor #FFFFFF
+skinparam roundcorner 10
+
+' ユーザーロール定義
+actor "旅行代理店スタッフ\n<$user>" as AgentStaff #lightblue
+actor "旅行承認者\n<$user_tie>" as TravelApprover #lightgreen
+actor "システム管理者\n<$user_cog>" as SystemAdmin #lightcoral
+
+' フェーズ定義
+rectangle "Phase 1: 旅行予約作成" as Phase1 #aliceblue {
+    (1) 旅行一覧画面を開く
+    (2) 新規旅行作成ボタンをクリック
+    (3) 基本情報を入力\n- 顧客選択 <$user>\n- 代理店選択 <$building>\n- 日程選択 <$calendar>
+    (4) 予約情報を追加\n- 航空会社選択 <$plane>\n- フライト選択\n- 座席クラス選択
+    (5) 追加サービスを選択\n- 保険 <$money_bill>\n- 食事オプション\n- 座席指定
+    (6) 料金計算・確認
+    (7) 下書き保存 or 申請
+}
+
+' フェーズ2
+rectangle "Phase 2: 旅行承認プロセス" as Phase2 #honeydew {
+    (8) 承認待ち一覧を確認
+    (9) 旅行詳細を確認
+    (10) 予約内容を検証
+    (11) 料金妥当性をチェック
+    (12) 承認 <$check> or 却下 <$times>
+    (13) 承認理由・コメント入力
+    (14) 通知送信
+}
+
+' フェーズ3
+rectangle "Phase 3: 旅行管理・変更" as Phase3 #mistyrose {
+    (15) 承認済み旅行一覧表示
+    (16) 旅行詳細画面を開く
+    (17) 変更要求の確認
+    (18) 予約変更・キャンセル
+    (19) 追加サービス変更
+    (20) 料金再計算
+    (21) 変更内容の承認
+    (22) 最終確定
+}
+
+' フェーズ4
+rectangle "Phase 4: マスターデータ管理" as Phase4 #lavender {
+    (23) 代理店情報管理
+    (24) 航空会社情報管理
+    (25) 追加サービス管理
+    (26) 料金設定管理
+    (27) ユーザー権限管理
+    (28) システム設定
+}
+
+' ユーザーアクション
+AgentStaff --> Phase1 : 旅行予約業務
+AgentStaff --> Phase3 : 旅行管理業務
+TravelApprover --> Phase2 : 承認業務
+SystemAdmin --> Phase4 : マスターデータ管理
+
+' 感情の変化
+rectangle "感情の変化" as EmotionalJourney #lightyellow {
+    (Start) 中立 <$meh>
+    (Task1) 集中 <$smile>
+    (Task2) 緊張 <$frown>
+    (Task3) 安心 <$smile>
+    (Task4) 満足 <$smile>
+    (Error) 困惑 <$frown>
+    (Success) 達成感 <$smile>
+}
+
+' タッチポイント
+rectangle "システムタッチポイント" as TouchPoints #lightsteelblue {
+    [旅行一覧画面] as TravelList
+    [旅行詳細画面] as TravelDetail
+    [予約画面] as BookingScreen
+    [承認画面] as ApprovalScreen
+    [バリューヘルプ] as ValueHelp
+    [通知システム] as NotificationSystem
+    [レポート画面] as ReportScreen
+}
+
+' ペインポイント
+rectangle "ペインポイント" as PainPoints #lightpink {
+    [データ入力の手間] as DataEntryPain
+    [複雑な料金計算] as PricingPain
+    [承認待ち時間] as ApprovalDelayPain
+    [システム連携エラー] as IntegrationPain
+    [権限不足エラー] as PermissionPain
+}
+
+' 改善点
+rectangle "改善機会" as ImprovementOpportunities #lightgreen {
+    [自動入力補完] as AutoComplete
+    [リアルタイム料金計算] as RealTimePricing
+    [自動承認ルール] as AutoApproval
+    [エラー通知強化] as ErrorNotification
+    [モバイル対応] as MobileSupport
+}
+
+' ジャーニーフロー
+Phase1 --> Phase2 : 申請提出
+Phase2 --> Phase3 : 承認完了
+Phase3 --> Phase1 : 新規予約
+Phase4 --> Phase1 : 設定完了
+
+' 感情フロー
+EmotionalJourney --> Phase1 : 開始
+Phase1 --> EmotionalJourney : 完了
+Phase2 --> EmotionalJourney : 判断
+Phase3 --> EmotionalJourney : 変更
+Phase4 --> EmotionalJourney : 管理
+
+' タッチポイント関連
+Phase1 --> TravelList
+Phase1 --> TravelDetail
+Phase1 --> BookingScreen
+Phase1 --> ValueHelp
+Phase2 --> ApprovalScreen
+Phase2 --> NotificationSystem
+Phase3 --> TravelDetail
+Phase3 --> BookingScreen
+Phase4 --> ReportScreen
+
+' ペインポイント関連
+Phase1 --> DataEntryPain
+Phase1 --> PricingPain
+Phase2 --> ApprovalDelayPain
+Phase3 --> IntegrationPain
+Phase4 --> PermissionPain
+
+' 改善機会関連
+DataEntryPain --> AutoComplete
+PricingPain --> RealTimePricing
+ApprovalDelayPain --> AutoApproval
+IntegrationPain --> ErrorNotification
+PermissionPain --> MobileSupport
+
+' 詳細なユーザーアクション
+note top of Phase1
+  **旅行予約作成の詳細**
+  - 顧客情報の確認・入力
+  - 旅行日程の調整
+  - 予算制約の考慮
+  - 複数オプションの比較
+  - 社内承認ルールの確認
+  - 必要書類の準備
+end note
+
+note top of Phase2
+  **承認プロセスの詳細**
+  - 予算超過チェック
+  - 会社規定との照合
+  - 過去の旅行履歴確認
+  - 代替案の検討
+  - 承認理由の文書化
+  - 関係者への通知
+end note
+
+note top of Phase3
+  **旅行管理の詳細**
+  - 変更要求の評価
+  - 追加費用の計算
+  - キャンセル料の確認
+  - 代替便の検索
+  - 顧客への連絡
+  - 最終確認の実施
+end note
+
+note top of Phase4
+  **マスターデータ管理の詳細**
+  - 新規代理店の登録
+  - 料金表の更新
+  - 契約条件の設定
+  - ユーザー権限の割り当て
+  - システム設定の調整
+  - データ品質の監視
+end note
+
+' 成功メトリクス
+rectangle "成功メトリクス" as SuccessMetrics #lightcyan {
+    [予約完了率] as BookingCompletionRate
+    [承認時間短縮] as ApprovalTimeReduction
+    [エラー発生率] as ErrorRate
+    [ユーザー満足度] as UserSatisfaction
+    [システム稼働率] as SystemUptime
+    [処理速度] as ProcessingSpeed
+}
+
+' メトリクス関連
+Phase1 --> BookingCompletionRate
+Phase2 --> ApprovalTimeReduction
+Phase3 --> ErrorRate
+Phase4 --> UserSatisfaction
+TouchPoints --> SystemUptime
+ImprovementOpportunities --> ProcessingSpeed
+
+@enduml

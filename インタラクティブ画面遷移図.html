@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ABAP Flight Management System - インタラクティブ画面遷移図</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 20px;
+            background: linear-gradient(135deg, #2196F3, #21CBF3);
+            border-radius: 15px;
+            color: white;
+        }
+        
+        .header h1 {
+            margin: 0;
+            font-size: 2.5em;
+            font-weight: 300;
+        }
+        
+        .header p {
+            margin: 10px 0 0 0;
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+        
+        .scenario-tabs {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 30px;
+            gap: 10px;
+        }
+        
+        .tab-button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .tab-button.active {
+            background: linear-gradient(135deg, #FF6B6B, #FF8E8E);
+            color: white;
+            transform: translateY(-2px);
+        }
+        
+        .tab-button:not(.active) {
+            background: #f8f9fa;
+            color: #666;
+        }
+        
+        .tab-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+        }
+        
+        .flow-container {
+            display: none;
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            margin: 20px 0;
+        }
+        
+        .flow-container.active {
+            display: block;
+        }
+        
+        .screen-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .screen-card {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            border-radius: 15px;
+            padding: 20px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .screen-card:hover {
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+        }
+        
+        .screen-card.clicked {
+            animation: pulse 0.5s ease-in-out;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        .screen-card h3 {
+            margin: 0 0 10px 0;
+            font-size: 1.3em;
+            font-weight: 600;
+        }
+        
+        .screen-card p {
+            margin: 0;
+            font-size: 0.9em;
+            opacity: 0.9;
+            line-height: 1.4;
+        }
+        
+        .screen-card .icon {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            font-size: 2em;
+            opacity: 0.7;
+        }
+        
+        .travel-list { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .travel-detail { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); }
+        .booking-detail { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
+        .supplement-detail { background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); }
+        .agency-mgmt { background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%); }
+        .carrier-mgmt { background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%); }
+        .supplement-mgmt { background: linear-gradient(135deg, #d299c2 0%, #fef9d7 100%); }
+        
+        .connections {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 20px 0;
+        }
+        
+        .arrow {
+            font-size: 2em;
+            color: #666;
+            margin: 0 10px;
+            transition: all 0.3s ease;
+        }
+        
+        .arrow.animated {
+            animation: bounce 1s infinite;
+            color: #FF6B6B;
+        }
+        
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-10px); }
+            60% { transform: translateY(-5px); }
+        }
+        
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+        
+        .feature-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 15px;
+            padding: 20px;
+            color: white;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+        }
+        
+        .feature-card h4 {
+            margin: 0 0 10px 0;
+            font-size: 1.2em;
+            font-weight: 600;
+        }
+        
+        .feature-card p {
+            margin: 0;
+            font-size: 0.9em;
+            opacity: 0.9;
+            line-height: 1.4;
+        }
+        
+        .popup {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .popup-content {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+            position: relative;
+            animation: slideIn 0.3s ease-out;
+        }
+        
+        @keyframes slideIn {
+            from { transform: translateY(-50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        
+        .close-btn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: none;
+            border: none;
+            font-size: 2em;
+            cursor: pointer;
+            color: #666;
+            line-height: 1;
+        }
+        
+        .close-btn:hover {
+            color: #FF6B6B;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .action-btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+        
+        .action-btn.approve {
+            background: linear-gradient(135deg, #4CAF50, #45a049);
+            color: white;
+        }
+        
+        .action-btn.reject {
+            background: linear-gradient(135deg, #f44336, #da190b);
+            color: white;
+        }
+        
+        .action-btn.edit {
+            background: linear-gradient(135deg, #2196F3, #0b7dda);
+            color: white;
+        }
+        
+        .action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🛫 ABAP Flight Management System</h1>
+            <p>インタラクティブ画面遷移図 - クリックして画面を探索してください</p>
+        </div>
+        
+        <div class="scenario-tabs">
+            <button class="tab-button active" onclick="showScenario('draft')">📝 Draft シナリオ</button>
+            <button class="tab-button" onclick="showScenario('managed')">⚙️ Managed シナリオ</button>
+            <button class="tab-button" onclick="showScenario('unmanaged')">🔧 Unmanaged シナリオ</button>
+            <button class="tab-button" onclick="showScenario('master')">🏢 マスターデータ</button>
+        </div>
+        
+        <!-- Draft シナリオ -->
+        <div id="draft" class="flow-container active">
+            <h2>📝 Draft シナリオ (ドラフト機能付き)</h2>
+            <div class="screen-grid">
+                <div class="screen-card travel-list" onclick="showScreenDetail('travel-list-draft')">
+                    <div class="icon">📋</div>
+                    <h3>旅行一覧</h3>
+                    <p>すべての旅行予約を表示・管理<br>検索・フィルタ機能付き</p>
+                </div>
+                <div class="screen-card travel-detail" onclick="showScreenDetail('travel-detail-draft')">
+                    <div class="icon">✈️</div>
+                    <h3>旅行詳細</h3>
+                    <p>旅行の詳細情報を編集<br>承認・却下・割引適用</p>
+                </div>
+                <div class="screen-card booking-detail" onclick="showScreenDetail('booking-detail-draft')">
+                    <div class="icon">🎫</div>
+                    <h3>予約詳細</h3>
+                    <p>フライト予約の詳細管理<br>座席・時間・料金設定</p>
+                </div>
+                <div class="screen-card supplement-detail" onclick="showScreenDetail('supplement-detail-draft')">
+                    <div class="icon">🍽️</div>
+                    <h3>追加サービス</h3>
+                    <p>食事・保険・座席指定<br>追加料金の管理</p>
+                </div>
+            </div>
+            
+            <div class="connections">
+                <span class="arrow">→</span>
+                <span class="arrow">→</span>
+                <span class="arrow">→</span>
+            </div>
+            
+            <div class="features">
+                <div class="feature-card">
+                    <h4>🔄 ドラフト機能</h4>
+                    <p>作業途中の保存と復元<br>編集中断・再開が可能</p>
+                </div>
+                <div class="feature-card">
+                    <h4>✅ 承認ワークフロー</h4>
+                    <p>承認・却下・コメント<br>履歴追跡機能</p>
+                </div>
+                <div class="feature-card">
+                    <h4>💰 割引機能</h4>
+                    <p>動的価格調整<br>条件に基づく割引適用</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Managed シナリオ -->
+        <div id="managed" class="flow-container">
+            <h2>⚙️ Managed シナリオ (管理されたBO)</h2>
+            <div class="screen-grid">
+                <div class="screen-card travel-list" onclick="showScreenDetail('travel-list-managed')">
+                    <div class="icon">📊</div>
+                    <h3>旅行処理一覧</h3>
+                    <p>処理対象の旅行一覧<br>ステータス別表示</p>
+                </div>
+                <div class="screen-card travel-detail" onclick="showScreenDetail('travel-detail-managed')">
+                    <div class="icon">⚙️</div>
+                    <h3>旅行処理詳細</h3>
+                    <p>自動処理と手動処理<br>コピー機能付き</p>
+                </div>
+                <div class="screen-card booking-detail" onclick="showScreenDetail('booking-detail-managed')">
+                    <div class="icon">🎯</div>
+                    <h3>予約処理詳細</h3>
+                    <p>予約の自動検証<br>整合性チェック</p>
+                </div>
+                <div class="screen-card supplement-detail" onclick="showScreenDetail('supplement-detail-managed')">
+                    <div class="icon">🔧</div>
+                    <h3>サービス処理</h3>
+                    <p>追加サービスの自動計算<br>料金最適化</p>
+                </div>
+            </div>
+            
+            <div class="features">
+                <div class="feature-card">
+                    <h4>🤖 自動処理</h4>
+                    <p>番号付与・検証<br>トランザクション管理</p>
+                </div>
+                <div class="feature-card">
+                    <h4>📋 コピー機能</h4>
+                    <p>既存旅行の複製<br>効率的な新規作成</p>
+                </div>
+                <div class="feature-card">
+                    <h4>🔍 内部整合性</h4>
+                    <p>データ整合性チェック<br>自動検証機能</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Unmanaged シナリオ -->
+        <div id="unmanaged" class="flow-container">
+            <h2>🔧 Unmanaged シナリオ (非管理BO)</h2>
+            <div class="screen-grid">
+                <div class="screen-card travel-list" onclick="showScreenDetail('travel-list-unmanaged')">
+                    <div class="icon">📁</div>
+                    <h3>旅行管理一覧</h3>
+                    <p>外部システム連携<br>手動管理対応</p>
+                </div>
+                <div class="screen-card travel-detail" onclick="showScreenDetail('travel-detail-unmanaged')">
+                    <div class="icon">🛠️</div>
+                    <h3>旅行管理詳細</h3>
+                    <p>カスタムロジック<br>柔軟な編集機能</p>
+                </div>
+                <div class="screen-card booking-detail" onclick="showScreenDetail('booking-detail-unmanaged')">
+                    <div class="icon">🎮</div>
+                    <h3>予約管理詳細</h3>
+                    <p>手動予約管理<br>外部API連携</p>
+                </div>
+                <div class="screen-card supplement-detail" onclick="showScreenDetail('supplement-detail-unmanaged')">
+                    <div class="icon">🎨</div>
+                    <h3>サービス管理</h3>
+                    <p>カスタムサービス<br>個別料金設定</p>
+                </div>
+            </div>
+            
+            <div class="features">
+                <div class="feature-card">
+                    <h4>🔗 外部連携</h4>
+                    <p>外部システムとの連携<br>API呼び出し機能</p>
+                </div>
+                <div class="feature-card">
+                    <h4>⚡ 予約済み設定</h4>
+                    <p>ワンクリック予約確定<br>ステータス一括変更</p>
+                </div>
+                <div class="feature-card">
+                    <h4>🎯 カスタムロジック</h4>
+                    <p>独自の業務ロジック<br>柔軟な処理対応</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- マスターデータ -->
+        <div id="master" class="flow-container">
+            <h2>🏢 マスターデータ管理</h2>
+            <div class="screen-grid">
+                <div class="screen-card agency-mgmt" onclick="showScreenDetail('agency-mgmt')">
+                    <div class="icon">🏢</div>
+                    <h3>代理店管理</h3>
+                    <p>代理店情報の管理<br>レビュー・評価機能</p>
+                </div>
+                <div class="screen-card carrier-mgmt" onclick="showScreenDetail('carrier-mgmt')">
+                    <div class="icon">✈️</div>
+                    <h3>航空会社管理</h3>
+                    <p>航空会社情報管理<br>ロック機能付き</p>
+                </div>
+                <div class="screen-card supplement-mgmt" onclick="showScreenDetail('supplement-mgmt')">
+                    <div class="icon">🍽️</div>
+                    <h3>追加サービス管理</h3>
+                    <p>サービス情報管理<br>カテゴリ・料金設定</p>
+                </div>
+            </div>
+            
+            <div class="features">
+                <div class="feature-card">
+                    <h4>🌟 レビュー機能</h4>
+                    <p>代理店の評価・レビュー<br>平均評価計算</p>
+                </div>
+                <div class="feature-card">
+                    <h4>🔒 ロック機能</h4>
+                    <p>データ編集ロック<br>同時編集防止</p>
+                </div>
+                <div class="feature-card">
+                    <h4>📊 カテゴリ管理</h4>
+                    <p>サービスカテゴリ<br>階層化された管理</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- ポップアップ -->
+    <div id="popup" class="popup">
+        <div class="popup-content">
+            <button class="close-btn" onclick="closePopup()">&times;</button>
+            <div id="popup-body"></div>
+        </div>
+    </div>
+    
+    <script>
+        function showScenario(scenarioId) {
+            // タブボタンの状態を更新
+            document.querySelectorAll('.tab-button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            // フローコンテナーの表示を切り替え
+            document.querySelectorAll('.flow-container').forEach(container => {
+                container.classList.remove('active');
+            });
+            document.getElementById(scenarioId).classList.add('active');
+            
+            // 矢印アニメーション
+            setTimeout(() => {
+                document.querySelectorAll('.arrow').forEach(arrow => {
+                    arrow.classList.add('animated');
+                    setTimeout(() => arrow.classList.remove('animated'), 2000);
+                });
+            }, 300);
+        }
+        
+        function showScreenDetail(screenId) {
+            // カードクリックエフェクト
+            event.target.classList.add('clicked');
+            setTimeout(() => event.target.classList.remove('clicked'), 500);
+            
+            const screenDetails = {
+                'travel-list-draft': {
+                    title: '📋 旅行一覧画面 (Draft)',
+                    content: `
+                        <h3>機能概要</h3>
+                        <p>ドラフト機能付きの旅行一覧画面です。</p>
+                        <h4>主な機能</h4>
+                        <ul>
+                            <li>旅行予約の一覧表示</li>
+                            <li>検索・フィルタ機能</li>
+                            <li>ソート機能</li>
+                            <li>新規作成ボタン</li>
+                            <li>ドラフト保存された項目の表示</li>
+                        </ul>
+                        <h4>表示項目</h4>
+                        <ul>
+                            <li>旅行ID</li>
+                            <li>代理店名</li>
+                            <li>顧客名</li>
+                            <li>旅行日程</li>
+                            <li>合計金額</li>
+                            <li>ステータス</li>
+                        </ul>
+                        <div class="action-buttons">
+                            <button class="action-btn edit" onclick="alert('編集画面に遷移します')">編集</button>
+                            <button class="action-btn approve" onclick="alert('承認処理を実行します')">承認</button>
+                            <button class="action-btn reject" onclick="alert('却下処理を実行します')">却下</button>
+                        </div>
+                    `
+                },
+                'travel-detail-draft': {
+                    title: '✈️ 旅行詳細画面 (Draft)',
+                    content: `
+                        <h3>機能概要</h3>
+                        <p>旅行の詳細情報を表示・編集する画面です。</p>
+                        <h4>主な機能</h4>
+                        <ul>
+                            <li>基本情報の表示・編集</li>
+                            <li>予約情報のタブ表示</li>
+                            <li>追加サービスの管理</li>
+                            <li>承認・却下アクション</li>
+                            <li>割引適用機能</li>
+                        </ul>
+                        <h4>タブ構成</h4>
+                        <ul>
+                            <li>基本情報 (旅行ID, 代理店, 顧客等)</li>
+                            <li>予約情報 (フライト詳細)</li>
+                            <li>追加サービス (食事, 保険等)</li>
+                        </ul>
+                        <div class="action-buttons">
+                            <button class="action-btn edit" onclick="alert('編集モードに切り替えます')">編集</button>
+                            <button class="action-btn approve" onclick="alert('旅行を承認します')">承認</button>
+                            <button class="action-btn reject" onclick="alert('旅行を却下します')">却下</button>
+                        </div>
+                    `
+                },
+                'booking-detail-draft': {
+                    title: '🎫 予約詳細画面 (Draft)',
+                    content: `
+                        <h3>機能概要</h3>
+                        <p>フライト予約の詳細情報を管理する画面です。</p>
+                        <h4>主な機能</h4>
+                        <ul>
+                            <li>フライト情報の表示・編集</li>
+                            <li>座席クラスの選択</li>
+                            <li>料金計算・表示</li>
+                            <li>乗客情報の管理</li>
+                            <li>予約ステータスの更新</li>
+                        </ul>
+                        <h4>入力項目</h4>
+                        <ul>
+                            <li>航空会社・フライト選択</li>
+                            <li>出発地・到着地</li>
+                            <li>日時選択</li>
+                            <li>座席クラス</li>
+                            <li>料金・通貨</li>
+                        </ul>
+                        <div class="action-buttons">
+                            <button class="action-btn edit" onclick="alert('予約情報を編集します')">編集</button>
+                            <button class="action-btn approve" onclick="alert('予約を確定します')">確定</button>
+                        </div>
+                    `
+                },
+                'supplement-detail-draft': {
+                    title: '🍽️ 追加サービス詳細画面 (Draft)',
+                    content: `
+                        <h3>機能概要</h3>
+                        <p>旅行に追加するサービスの詳細管理画面です。</p>
+                        <h4>主な機能</h4>
+                        <ul>
+                            <li>サービス種別の選択</li>
+                            <li>料金計算・表示</li>
+                            <li>数量の設定</li>
+                            <li>カテゴリ別表示</li>
+                            <li>合計金額の自動計算</li>
+                        </ul>
+                        <h4>サービス種別</h4>
+                        <ul>
+                            <li>食事オプション</li>
+                            <li>旅行保険</li>
+                            <li>座席指定</li>
+                            <li>手荷物追加</li>
+                            <li>その他サービス</li>
+                        </ul>
+                        <div class="action-buttons">
+                            <button class="action-btn edit" onclick="alert('サービス情報を編集します')">編集</button>
+                            <button class="action-btn approve" onclick="alert('サービスを追加します')">追加</button>
+                        </div>
+                    `
+                },
+                'agency-mgmt': {
+                    title: '🏢 代理店管理画面',
+                    content: `
+                        <h3>機能概要</h3>
+                        <p>旅行代理店の情報を管理する画面です。</p>
+                        <h4>主な機能</h4>
+                        <ul>
+                            <li>代理店情報の登録・編集</li>
+                            <li>レビュー・評価の管理</li>
+                            <li>契約条件の設定</li>
+                            <li>手数料率の管理</li>
+                            <li>連絡先情報の管理</li>
+                        </ul>
+                        <h4>管理項目</h4>
+                        <ul>
+                            <li>代理店名・住所</li>
+                            <li>連絡先情報</li>
+                            <li>評価・レビュー</li>
+                            <li>契約ステータス</li>
+                            <li>手数料設定</li>
+                        </ul>
+                        <div class="action-buttons">
+                            <button class="action-btn edit" onclick="alert('代理店情報を編集します')">編集</button>
+                            <button class="action-btn approve" onclick="alert('代理店を承認します')">承認</button>
+                        </div>
+                    `
+                },
+                'carrier-mgmt': {
+                    title: '✈️ 航空会社管理画面',
+                    content: `
+                        <h3>機能概要</h3>
+                        <p>航空会社の情報を管理する画面です。</p>
+                        <h4>主な機能</h4>
+                        <ul>
+                            <li>航空会社情報の登録・編集</li>
+                            <li>フライト情報の管理</li>
+                            <li>料金設定の管理</li>
+                            <li>ロック機能による編集制御</li>
+                            <li>シングルトン管理</li>
+                        </ul>
+                        <h4>管理項目</h4>
+                        <ul>
+                            <li>航空会社名・コード</li>
+                            <li>運航路線情報</li>
+                            <li>料金体系</li>
+                            <li>サービスクラス</li>
+                            <li>契約条件</li>
+                        </ul>
+                        <div class="action-buttons">
+                            <button class="action-btn edit" onclick="alert('航空会社情報を編集します')">編集</button>
+                            <button class="action-btn approve" onclick="alert('航空会社を承認します')">承認</button>
+                        </div>
+                    `
+                },
+                'supplement-mgmt': {
+                    title: '🍽️ 追加サービス管理画面',
+                    content: `
+                        <h3>機能概要</h3>
+                        <p>追加サービスの情報を管理する画面です。</p>
+                        <h4>主な機能</h4>
+                        <ul>
+                            <li>サービス情報の登録・編集</li>
+                            <li>カテゴリ別管理</li>
+                            <li>料金設定・更新</li>
+                            <li>多言語対応</li>
+                            <li>サービステキスト管理</li>
+                        </ul>
+                        <h4>管理項目</h4>
+                        <ul>
+                            <li>サービス名・説明</li>
+                            <li>カテゴリ分類</li>
+                            <li>料金・通貨</li>
+                            <li>提供期間</li>
+                            <li>利用条件</li>
+                        </ul>
+                        <div class="action-buttons">
+                            <button class="action-btn edit" onclick="alert('サービス情報を編集します')">編集</button>
+                            <button class="action-btn approve" onclick="alert('サービスを承認します')">承認</button>
+                        </div>
+                    `
+                }
+            };
+            
+            // 対応する詳細情報がない場合のデフォルト
+            const detail = screenDetails[screenId] || {
+                title: '画面詳細',
+                content: '<p>この画面の詳細情報は準備中です。</p>'
+            };
+            
+            document.getElementById('popup-body').innerHTML = `
+                <h2>${detail.title}</h2>
+                ${detail.content}
+            `;
+            
+            document.getElementById('popup').style.display = 'flex';
+        }
+        
+        function closePopup() {
+            document.getElementById('popup').style.display = 'none';
+        }
+        
+        // ESCキーでポップアップを閉じる
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                closePopup();
+            }
+        });
+        
+        // ポップアップの外側をクリックで閉じる
+        document.getElementById('popup').addEventListener('click', function(event) {
+            if (event.target === this) {
+                closePopup();
+            }
+        });
+        
+        // 初期表示時のアニメーション
+        window.addEventListener('load', function() {
+            setTimeout(() => {
+                document.querySelectorAll('.screen-card').forEach((card, index) => {
+                    setTimeout(() => {
+                        card.style.animation = `slideIn 0.5s ease-out forwards`;
+                    }, index * 100);
+                });
+            }, 500);
+        });
+    </script>
+</body>
+</html>

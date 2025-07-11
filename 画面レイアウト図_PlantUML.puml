@@ -1,0 +1,228 @@
+@startuml ABAPFlightScreenLayout
+!theme aws-orange
+!define SPRITE_URL https://raw.githubusercontent.com/tupadr3/plantuml-icon-font-sprites/master
+!includeurl SPRITE_URL/common.puml
+!includeurl SPRITE_URL/font-awesome-5/plane.puml
+!includeurl SPRITE_URL/font-awesome-5/user.puml
+!includeurl SPRITE_URL/font-awesome-5/building.puml
+!includeurl SPRITE_URL/font-awesome-5/calendar.puml
+!includeurl SPRITE_URL/font-awesome-5/money_bill.puml
+!includeurl SPRITE_URL/font-awesome-5/list.puml
+!includeurl SPRITE_URL/font-awesome-5/edit.puml
+!includeurl SPRITE_URL/font-awesome-5/search.puml
+!includeurl SPRITE_URL/font-awesome-5/filter.puml
+!includeurl SPRITE_URL/font-awesome-5/plus.puml
+!includeurl SPRITE_URL/font-awesome-5/save.puml
+!includeurl SPRITE_URL/font-awesome-5/times.puml
+
+title ABAP Flight Management System - 画面レイアウト図
+
+skinparam backgroundColor #FFFFFF
+skinparam roundcorner 10
+
+' 旅行一覧画面
+package "旅行一覧画面 <$list>" as TravelListScreen {
+    rectangle "ヘッダー部" as ListHeader #lightblue {
+        [タイトル: 旅行管理] as ListTitle
+        [検索バー <$search>] as SearchBar
+        [フィルタ <$filter>] as FilterBar
+        [新規作成 <$plus>] as CreateButton
+    }
+    
+    rectangle "リスト部" as ListContent #lightcyan {
+        [旅行ID] as TravelID
+        [代理店 <$building>] as AgencyCol
+        [顧客 <$user>] as CustomerCol
+        [開始日 <$calendar>] as StartDateCol
+        [終了日 <$calendar>] as EndDateCol
+        [合計金額 <$money_bill>] as TotalPriceCol
+        [ステータス] as StatusCol
+        [アクション] as ActionCol
+    }
+    
+    rectangle "フッター部" as ListFooter #lightgray {
+        [ページネーション] as Pagination
+        [表示件数設定] as PageSize
+        [エクスポート] as Export
+    }
+    
+    ListHeader --> ListContent
+    ListContent --> ListFooter
+}
+
+' 旅行詳細画面
+package "旅行詳細画面 <$edit>" as TravelDetailScreen {
+    rectangle "ヘッダー部" as DetailHeader #lightgreen {
+        [タイトル: 旅行詳細] as DetailTitle
+        [保存 <$save>] as SaveButton
+        [キャンセル <$times>] as CancelButton
+        [承認ボタン] as ApproveButton
+        [却下ボタン] as RejectButton
+    }
+    
+    rectangle "基本情報タブ" as BasicInfoTab #lightgreen {
+        [旅行ID (読み取り専用)] as DetailTravelID
+        [代理店選択 <$building>] as AgencySelect
+        [顧客選択 <$user>] as CustomerSelect
+        [開始日選択 <$calendar>] as StartDatePicker
+        [終了日選択 <$calendar>] as EndDatePicker
+        [予約手数料 <$money_bill>] as BookingFee
+        [合計金額 <$money_bill>] as TotalPrice
+        [通貨選択] as CurrencySelect
+        [説明テキスト] as Description
+        [ステータス] as DetailStatus
+    }
+    
+    rectangle "予約情報タブ" as BookingTab #lightsteelblue {
+        [予約一覧テーブル] as BookingTable
+        [予約追加ボタン <$plus>] as AddBookingButton
+        [予約ID] as BookingID
+        [航空会社 <$plane>] as Airline
+        [フライト番号] as FlightNumber
+        [出発地 <$building>] as DepartureAirport
+        [到着地 <$building>] as ArrivalAirport
+        [出発日時 <$calendar>] as DepartureDateTime
+        [到着日時 <$calendar>] as ArrivalDateTime
+        [料金 <$money_bill>] as FlightPrice
+        [予約ステータス] as BookingStatus
+    }
+    
+    rectangle "追加サービスタブ" as SupplementTab #lightpink {
+        [サービス一覧テーブル] as SupplementTable
+        [サービス追加ボタン <$plus>] as AddSupplementButton
+        [サービス名] as SupplementName
+        [カテゴリ] as SupplementCategory
+        [料金 <$money_bill>] as SupplementPrice
+        [説明] as SupplementDescription
+    }
+    
+    DetailHeader --> BasicInfoTab
+    BasicInfoTab --> BookingTab
+    BookingTab --> SupplementTab
+}
+
+' 予約詳細画面
+package "予約詳細画面 <$calendar>" as BookingDetailScreen {
+    rectangle "ヘッダー部" as BookingHeader #lightyellow {
+        [タイトル: 予約詳細] as BookingTitle
+        [保存 <$save>] as BookingSaveButton
+        [キャンセル <$times>] as BookingCancelButton
+        [削除ボタン] as BookingDeleteButton
+    }
+    
+    rectangle "フライト情報" as FlightInfo #lightyellow {
+        [予約ID] as BookingDetailID
+        [航空会社選択 <$plane>] as AirlineSelect
+        [フライト選択] as FlightSelect
+        [出発空港選択 <$building>] as DepartureSelect
+        [到着空港選択 <$building>] as ArrivalSelect
+        [出発日時 <$calendar>] as DepartureDateTimePicker
+        [到着日時 <$calendar>] as ArrivalDateTimePicker
+        [座席クラス] as SeatClass
+        [料金 <$money_bill>] as BookingPrice
+        [通貨] as BookingCurrency
+        [顧客ID <$user>] as PassengerID
+        [予約ステータス] as BookingDetailStatus
+    }
+    
+    rectangle "追加サービス情報" as BookingSupplementInfo #mistyrose {
+        [サービス一覧] as BookingSupplementList
+        [サービス追加 <$plus>] as AddBookingSupplementButton
+    }
+    
+    BookingHeader --> FlightInfo
+    FlightInfo --> BookingSupplementInfo
+}
+
+' 追加サービス詳細画面
+package "追加サービス詳細画面 <$money_bill>" as SupplementDetailScreen {
+    rectangle "ヘッダー部" as SupplementHeader #lightcoral {
+        [タイトル: 追加サービス詳細] as SupplementTitle
+        [保存 <$save>] as SupplementSaveButton
+        [キャンセル <$times>] as SupplementCancelButton
+        [削除ボタン] as SupplementDeleteButton
+    }
+    
+    rectangle "サービス情報" as SupplementInfo #lightcoral {
+        [サービスID] as SupplementID
+        [サービス選択] as SupplementSelect
+        [カテゴリ選択] as CategorySelect
+        [料金 <$money_bill>] as ServicePrice
+        [通貨] as ServiceCurrency
+        [数量] as Quantity
+        [説明] as ServiceDescription
+    }
+    
+    SupplementHeader --> SupplementInfo
+}
+
+' バリューヘルプ画面
+package "バリューヘルプ画面" as ValueHelpScreen {
+    rectangle "検索ダイアログ" as SearchDialog #lavender {
+        [検索条件入力 <$search>] as SearchInput
+        [検索ボタン] as SearchButton
+        [クリアボタン] as ClearButton
+        [フィルタ設定 <$filter>] as FilterSettings
+    }
+    
+    rectangle "結果一覧" as ResultList #lavender {
+        [選択可能な項目一覧] as SelectableItems
+        [複数選択チェックボックス] as MultiSelect
+        [ページネーション] as VHPagination
+    }
+    
+    rectangle "アクション部" as VHActions #lavender {
+        [選択ボタン] as SelectButton
+        [キャンセルボタン] as VHCancelButton
+        [詳細表示ボタン] as DetailViewButton
+    }
+    
+    SearchDialog --> ResultList
+    ResultList --> VHActions
+}
+
+' 画面遷移の矢印
+TravelListScreen --> TravelDetailScreen : 行をクリック
+TravelDetailScreen --> BookingDetailScreen : 予約をクリック
+BookingDetailScreen --> SupplementDetailScreen : サービスをクリック
+TravelDetailScreen -.-> ValueHelpScreen : バリューヘルプ呼び出し
+BookingDetailScreen -.-> ValueHelpScreen : バリューヘルプ呼び出し
+SupplementDetailScreen -.-> ValueHelpScreen : バリューヘルプ呼び出し
+
+' 戻る遷移
+TravelDetailScreen --> TravelListScreen : 戻るボタン
+BookingDetailScreen --> TravelDetailScreen : 戻るボタン
+SupplementDetailScreen --> BookingDetailScreen : 戻るボタン
+ValueHelpScreen --> TravelDetailScreen : 選択完了
+ValueHelpScreen --> BookingDetailScreen : 選択完了
+ValueHelpScreen --> SupplementDetailScreen : 選択完了
+
+' 注釈
+note top of TravelListScreen
+  **一覧画面の特徴**
+  - 検索・フィルタ機能
+  - ソート機能
+  - ページネーション
+  - 一括操作
+  - エクスポート機能
+end note
+
+note top of TravelDetailScreen
+  **詳細画面の特徴**
+  - タブ形式のレイアウト
+  - リアルタイム検証
+  - 関連データの表示
+  - アクションボタン
+  - ドラフト保存
+end note
+
+note top of ValueHelpScreen
+  **バリューヘルプの特徴**
+  - 高速検索
+  - フィルタリング
+  - 複数選択対応
+  - 大量データ対応
+  - 入力補完
+end note
+
+@enduml
